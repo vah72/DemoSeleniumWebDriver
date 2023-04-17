@@ -1,10 +1,9 @@
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.SneakyThrows;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.junit.Assert;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,7 +11,6 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.testng.asserts.Assertion;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,8 +28,8 @@ public class DemoTest {
     String url = "https://opensource-demo.orangehrmlive.com/web/index.php/auth/login";
     Map<String, Object[]> testNGResults;
 
-    HSSFWorkbook workbook;
-    HSSFSheet sheet;
+    XSSFWorkbook workbook;
+    XSSFSheet sheet;
     public void login(String username, String password)  {
         driver.findElement(By.name("username")).sendKeys(username);
         driver.findElement(By.name("password")).sendKeys(password);
@@ -115,7 +113,7 @@ public class DemoTest {
         testNGResults.put("1", new Object[]{"Test Step", "Username", "Password", "Expected Output", "Result"});
 
         //Khai báo file excel result  testcases
-        workbook = new HSSFWorkbook();
+        workbook = new XSSFWorkbook();
         sheet = workbook.createSheet("TestcaseLogin");
 
         try{
@@ -126,8 +124,7 @@ public class DemoTest {
         }
     }
 
-    @AfterClass
-    public void afterClass(){
+    @AfterClass    public void afterClass(){
         Set<String> keyset = testNGResults.keySet();
         int rownum = 0;
         for (String key : keyset){
@@ -136,7 +133,13 @@ public class DemoTest {
             int cellnum=0;
             for (Object obj : objects){
                 Cell cell = row.createCell(cellnum++);
-                cell.setCellValue((String)obj);
+                if (obj instanceof String){
+                    cell.setCellValue((String)obj);
+                } else if ( obj instanceof Integer){
+                    cell.setCellValue((Integer)obj);
+                }
+
+                System.out.println((String) obj);
             }
         }
         try{
